@@ -9,18 +9,41 @@ class ChatView extends React.Component {
         this.state = {
             selectedChannel: '',
             selectedChannelChats: [],
-            channels: []
+            channels: [],
+            message: ""
         }
     }
 
-    getData = async () => {
+    componentDidMount() {
+        this.getData()
+        this.listenForMessages()
+    }
 
+    listenForMessages = () => {
+        db.collection('Classes').onSnapshot(
+            (snapshot) => {
+                // Loop through the snapshot and collect
+                // the necessary info we need. Then push
+                // it into our array
+                // const allMessages = [];
+                // snapshot.forEach((doc) => allMessages.push(doc.data()));
+                console.log('HIHIHI', snapshot)
+                // Set the collected array as our state
+                // setMessages(allMessages);
+            },
+            (error) => console.error(error)
+        );
+    };
+
+    getData = async () => {
+        // this.streamDocument()
         const Classes = db.collection('Classes');
         const Channels = await Classes.get();
         let availableGroups = []
         Channels.forEach(async (channel) => {
+
             const Messages = db.collection('Classes').doc(channel.id).collection('messages')
-            const MessageId = await Messages.get()
+            const MessageId = await Messages.orderBy('date').get()
             let arrayOfMessages = []
             MessageId.forEach(message => {
                 // console.log(message.id, '=>', message.data().sender, 'says: ', message.data().content)
@@ -35,6 +58,25 @@ class ChatView extends React.Component {
             })
         });
 
+    }
+
+    renderChats = () => {
+        return <ChatBubble channels={this.state.selectedChannelChats} />
+    }
+
+    writeData = async () => {
+        // add a new message with an auto generated id.
+        // below is the firestore date type
+        // const timestamp = firebase.firestore.Timestamp.fromDate(new Date())
+
+        const timestamp = new Date() / 1000;
+        const res = await db.collection('Classes').doc(this.state.selectedChannel).collection('messages').add({
+            content: this.state.message,
+            date: timestamp,
+            sender: 'Sanya S'
+        })
+        this.setState({ message: "" })
+        document.getElementById('message').value = ''
     }
 
     changeSelectedChannel = (e) => {
@@ -61,6 +103,12 @@ class ChatView extends React.Component {
                 </div>
                 <div className="col-sm-10" style={{ backgroundColor: '#f42069' }}>
                     <ChatBubble channels={this.state.selectedChannelChats} />
+                    {/* <button type="button" onClick={this.writeData}>Write Data</button> */}
+                    <input type="text" id="message" onChange={(e) => {
+                        this.setState({ message: e.target.value })
+                        console.log(this.state.message)
+                    }}></input>
+                    <button type="button" onClick={this.writeData}>Send</button>
                 </div>
             </div>
         )

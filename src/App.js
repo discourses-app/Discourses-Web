@@ -53,10 +53,6 @@ class App extends React.Component {
 
   render() {
     return (
-      /* <h6>DO NOT PRESS 'WRITE DATA' UNLESS U WANNA MESS UP YOUR RECORDS</h6>
-        <button type="button" onClick={this.writeData}>Write data</button>
-        <button type="button" onClick={this.getData}>Get data</button>
-        <ChatBubble channels={this.state.channels} /> */
       <ChatView />
     );
   }
