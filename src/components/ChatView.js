@@ -115,7 +115,8 @@ class ChatView extends React.Component {
                     </div>
                 </div>
                 <div className="col-sm-10 no-gutters" style={{ backgroundColor: '#526B83', marginLeft: 0, paddingLeft: 0 }}>
-                    <div style={{ overflowY: 'scroll', border: '5px solid black', height: '90%', paddingLeft: 10 }}>
+                    <h1>{this.state.selectedChannel === '' ? <h1>No channel selected</h1> : this.state.selectedChannel}</h1>
+                    <div style={{ overflowY: 'scroll', border: '5px solid black', height: '80%', paddingLeft: 10 }}>
                         {this.state.selectedChannel === '' ? <h1 style={{ textAlign: 'center', marginTop: 300 }}>Pick a channel and start chatting away! :)</h1> : this.renderChats()}
                     </div>
                     <div className="row">
