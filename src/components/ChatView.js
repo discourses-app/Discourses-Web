@@ -19,24 +19,18 @@ class ChatView extends React.Component {
         this.listenForMessages()
     }
 
-    listenForMessages = () => {
-        db.collection('Classes').onSnapshot(
-            (snapshot) => {
-                // Loop through the snapshot and collect
-                // the necessary info we need. Then push
-                // it into our array
-                // const allMessages = [];
-                // snapshot.forEach((doc) => allMessages.push(doc.data()));
-                console.log('HIHIHI', snapshot)
-                // Set the collected array as our state
-                // setMessages(allMessages);
-            },
-            (error) => console.error(error)
-        );
+    listenForMessages = async () => {
+        const Classes = db.collection('Classes');
+        const Channels = await Classes.get();
+        Channels.forEach(async (channel) => {
+            db.collection('Classes').doc(channel.id).collection('messages').onSnapshot(async (snapshot) => {
+                console.log('snapshot')
+                await this.getData()
+            })
+        })
     };
 
     getData = async () => {
-        // this.streamDocument()
         const Classes = db.collection('Classes');
         const Channels = await Classes.get();
         let availableGroups = []
@@ -56,6 +50,16 @@ class ChatView extends React.Component {
             this.setState({
                 channels: availableGroups
             })
+            console.log('inside getDAta')
+            console.log(this.state.channels)
+            if (this.state.selectedChannel !== '') {
+                let allChannels = this.state.channels
+                let desiredChannel = allChannels.filter(channel => { return channel.name === this.state.selectedChannel })
+                this.setState({
+                    selectedChannelChats: desiredChannel
+                })
+                this.renderChats()
+            }
         });
 
     }
@@ -65,8 +69,6 @@ class ChatView extends React.Component {
     }
 
     writeData = async () => {
-        // add a new message with an auto generated id.
-        // below is the firestore date type
         // const timestamp = firebase.firestore.Timestamp.fromDate(new Date())
 
         const timestamp = new Date() / 1000;
@@ -92,23 +94,40 @@ class ChatView extends React.Component {
         })
     }
 
+    renderChats = () => {
+        return <ChatBubble channels={this.state.selectedChannelChats} />
+    }
+
     render() {
         return (
-            <div className="row">
-                <div className="col-sm-2" style={{ backgroundColor: '#b4da55' }}>
-                    <button type="button" onClick={this.getData}>get data</button>
-                    <div>
-                        {this.state.channels.map(channel => <div><button type="button" class="btn btn-secondary btn-lg btn-block" onClick={this.changeSelectedChannel} style={{ fontSize: 14 }} value={channel.name}>{channel.name}</button></div>)}
+            <div className="row vh-100">
+                <div className="col-sm-2" style={{ backgroundColor: '#C4C4C4', height: 100 + '%' }}>
+                    <h1 style={{ textAlign: 'center' }}>Your Courses</h1>
+                    <div style={{ marginRight: 0 }}>
+                        {this.state.channels.map(channel => <div>
+                            <button type="button" class="btn btn-secondary btn-lg btn-block" onClick={this.changeSelectedChannel}
+                                style={{ fontSize: 14, backgroundColor: 'white', color: 'black', borderRadius: 10, marginBottom: 20, marginLeft: 3 + '%', width: 100 + '%' }}
+                                value={channel.name}>
+                                {channel.name.slice(0, channel.name.indexOf('*'))} {channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))} {channel.name.slice(channel.name.lastIndexOf('*') + 1)}
+                            </button>
+                        </div>
+                        )}
                     </div>
                 </div>
-                <div className="col-sm-10" style={{ backgroundColor: '#f42069' }}>
-                    <ChatBubble channels={this.state.selectedChannelChats} />
-                    {/* <button type="button" onClick={this.writeData}>Write Data</button> */}
-                    <input type="text" id="message" onChange={(e) => {
-                        this.setState({ message: e.target.value })
-                        console.log(this.state.message)
-                    }}></input>
-                    <button type="button" onClick={this.writeData}>Send</button>
+                <div className="col-sm-10 no-gutters" style={{ backgroundColor: '#526B83', marginLeft: 0, paddingLeft: 0 }}>
+                    <div style={{ overflowY: 'scroll', border: '5px solid black', height: '90%', paddingLeft: 10 }}>
+                        {this.state.selectedChannel === '' ? <h1 style={{ textAlign: 'center', marginTop: 300 }}>Pick a channel and start chatting away! :)</h1> : this.renderChats()}
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-11" style={{ marginRight: 0, paddingRight: 0 }}>
+                            <input type="text" id="message" onChange={(e) => {
+                                this.setState({ message: e.target.value })
+                            }} style={{ width: '100%', height: '5rem', paddingRight: 0, marginRight: 0 }}></input>
+                        </div>
+                        <div className="col-sm-1 no-gutters" style={{ marginLeft: 0, paddingLeft: 0 }}>
+                            <button type="button" onClick={this.writeData} style={{ width: '100%', height: '5rem' }}>Send</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
