@@ -17,6 +17,18 @@ class ChatView extends React.Component {
     componentDidMount() {
         this.getData()
         this.listenForMessages()
+        this.listenForEnter()
+    }
+
+    listenForEnter = (event) => {
+        let input = document.getElementById("message");
+
+        input.addEventListener("keyup", (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById("submit").click();
+            }
+        });
     }
 
     listenForMessages = async () => {
@@ -83,6 +95,8 @@ class ChatView extends React.Component {
 
     changeSelectedChannel = (e) => {
         e.preventDefault()
+        console.log('target value', e.target.value)
+        console.log(e)
         this.setState({
             selectedChannel: e.target.value
         })
@@ -110,12 +124,24 @@ class ChatView extends React.Component {
                                 value={channel.name}>
                                 {channel.name.slice(0, channel.name.indexOf('*'))} {channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))} {channel.name.slice(channel.name.lastIndexOf('*') + 1)}
                             </button>
+                            <div role="button" onClick={this.changeSelectedChannel} value={channel.name} className="card" style={{ width: '13rem', cursor: "pointer", marginLeft: 3 + '%', borderRadius: 10, borderColor: 'black' }}>
+                                <div className="card-body" style={{ textAlign: 'center', paddingTop: 5, paddingBottom: 0 }}>
+                                    <h6 className="card-title">{channel.name.slice(0, channel.name.indexOf('*'))}</h6>
+                                    <p className="card-subtitle mb-2 text-muted" style={{ fontSize: 12 }}>{channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))} {channel.name.slice(channel.name.lastIndexOf('*') + 1)}</p>
+                                </div>
+                            </div>
                         </div>
                         )}
                     </div>
                 </div>
                 <div className="col-sm-10 no-gutters" style={{ backgroundColor: '#526B83', marginLeft: 0, paddingLeft: 0 }}>
-                    <h1>{this.state.selectedChannel === '' ? <h1>No channel selected</h1> : this.state.selectedChannel}</h1>
+                    <p>{this.state.selectedChannel === ''
+                        ?
+                        <h1>No channel selected</h1>
+                        :
+                        <h1>{this.state.selectedChannel.slice(0, this.state.selectedChannel.indexOf('*'))}<span style={{ fontSize: 20, paddingLeft: 8 }}>{" ".concat(this.state.selectedChannel.slice(this.state.selectedChannel.indexOf('*') + 1, this.state.selectedChannel.lastIndexOf('*'))).concat(" - Lecture ").concat(this.state.selectedChannel.slice(this.state.selectedChannel.lastIndexOf('*') + 1))}</span></h1>
+                    }
+                    </p>
                     <div style={{ overflowY: 'scroll', border: '5px solid black', height: '80%', paddingLeft: 10 }}>
                         {this.state.selectedChannel === '' ? <h1 style={{ textAlign: 'center', marginTop: 300 }}>Pick a channel and start chatting away! :)</h1> : this.renderChats()}
                     </div>
@@ -126,7 +152,7 @@ class ChatView extends React.Component {
                             }} style={{ width: '100%', height: '5rem', paddingRight: 0, marginRight: 0 }}></input>
                         </div>
                         <div className="col-sm-1 no-gutters" style={{ marginLeft: 0, paddingLeft: 0 }}>
-                            <button type="button" onClick={this.writeData} style={{ width: '100%', height: '5rem' }}>Send</button>
+                            <button type="submit" id="submit" onClick={this.writeData} style={{ width: '100%', height: '5rem' }}>Send</button>
                         </div>
                     </div>
                 </div>
