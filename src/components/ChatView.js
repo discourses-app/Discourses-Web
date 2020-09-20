@@ -93,19 +93,23 @@ class ChatView extends React.Component {
         document.getElementById('message').value = ''
     }
 
+    fakeClick = (desiredChannel) => {
+        this.setState({ selectedChannelChats: desiredChannel })
+    }
+
     changeSelectedChannel = (e) => {
         e.preventDefault()
-        console.log('target value', e.target.value)
-        console.log(e)
+        const eTarget = e.target.value;
         this.setState({
-            selectedChannel: e.target.value
+            selectedChannel: eTarget
         })
         console.log('state: ', this.state.selectedChannel)
         let allChannels = this.state.channels
-        let desiredChannel = allChannels.filter(channel => { return channel.name === e.target.value })
+        let desiredChannel = allChannels.filter(channel => { return channel.name === eTarget })
         this.setState({
             selectedChannelChats: desiredChannel
         })
+        this.fakeClick(desiredChannel)
     }
 
     renderChats = () => {
@@ -122,25 +126,28 @@ class ChatView extends React.Component {
                             <button type="button" class="btn btn-secondary btn-lg btn-block" onClick={this.changeSelectedChannel}
                                 style={{ fontSize: 14, backgroundColor: 'white', color: 'black', borderRadius: 10, marginBottom: 20, marginLeft: 3 + '%', width: 100 + '%' }}
                                 value={channel.name}>
-                                {channel.name.slice(0, channel.name.indexOf('*'))} {channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))} {channel.name.slice(channel.name.lastIndexOf('*') + 1)}
+                                {<span style={{ fontWeight: 'bold' }} class="label">{channel.name.slice(0, channel.name.indexOf('*'))}</span>}
+                                {channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))}
+                                {channel.name.slice(channel.name.lastIndexOf('*') + 1)}
                             </button>
-                            <div role="button" onClick={this.changeSelectedChannel} value={channel.name} className="card" style={{ width: '13rem', cursor: "pointer", marginLeft: 3 + '%', borderRadius: 10, borderColor: 'black' }}>
+                            {/* <div role="button" onClick={this.changeSelectedChannel} value={channel.name} className="card" style={{ width: '13rem', cursor: "pointer", marginLeft: 3 + '%', borderRadius: 10, borderColor: 'black' }}>
                                 <div className="card-body" style={{ textAlign: 'center', paddingTop: 5, paddingBottom: 0 }}>
                                     <h6 className="card-title">{channel.name.slice(0, channel.name.indexOf('*'))}</h6>
                                     <p className="card-subtitle mb-2 text-muted" style={{ fontSize: 12 }}>{channel.name.slice(channel.name.indexOf('*') + 1, channel.name.lastIndexOf('*'))} {channel.name.slice(channel.name.lastIndexOf('*') + 1)}</p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                         )}
                     </div>
                 </div>
                 <div className="col-sm-10 no-gutters" style={{ backgroundColor: '#526B83', marginLeft: 0, paddingLeft: 0 }}>
-                    <p>{this.state.selectedChannel === ''
-                        ?
-                        <h1>No channel selected</h1>
-                        :
-                        <h1>{this.state.selectedChannel.slice(0, this.state.selectedChannel.indexOf('*'))}<span style={{ fontSize: 20, paddingLeft: 8 }}>{" ".concat(this.state.selectedChannel.slice(this.state.selectedChannel.indexOf('*') + 1, this.state.selectedChannel.lastIndexOf('*'))).concat(" - Lecture ").concat(this.state.selectedChannel.slice(this.state.selectedChannel.lastIndexOf('*') + 1))}</span></h1>
-                    }
+                    <p>
+                        {this.state.selectedChannel === ''
+                            ?
+                            <h1>No channel selected</h1>
+                            :
+                            <h1>{this.state.selectedChannel.slice(0, this.state.selectedChannel.indexOf('*'))}<span style={{ fontSize: 20, paddingLeft: 8 }}>{" ".concat(this.state.selectedChannel.slice(this.state.selectedChannel.indexOf('*') + 1, this.state.selectedChannel.lastIndexOf('*'))).concat(" - Lecture ").concat(this.state.selectedChannel.slice(this.state.selectedChannel.lastIndexOf('*') + 1))}</span></h1>
+                        }
                     </p>
                     <div style={{ overflowY: 'scroll', border: '5px solid black', height: '80%', paddingLeft: 10 }}>
                         {this.state.selectedChannel === '' ? <h1 style={{ textAlign: 'center', marginTop: 300 }}>Pick a channel and start chatting away! :)</h1> : this.renderChats()}
